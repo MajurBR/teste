@@ -1,0 +1,649 @@
+<html>
+<head>
+  <base href="https://word-snake.vercel.app">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aprendizado sem fronteiras</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta name="description" content="Aprendizado sem fronteiras - Plataforma educacional interativa com jogos e atividades para aprendizado cient&#xed;fico. Explore nosso jogo Word Snake 3D e outros recursos educacionais.">
+  <meta name="keywords" content="aprendizado sem fronteiras, jogos educativos, educa&#xe7;&#xe3;o interativa, word snake 3d, aprendizagem cient&#xed;fica">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Aprendizado sem fronteiras">
+  <meta property="og:description" content="Plataforma educacional interativa com jogos e atividades para aprendizado cient&#xed;fico.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://word-snake.vercel.app">
+  <link rel="canonical" href="https://word-snake.vercel.app">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+    }
+
+    .navbar {
+      background: #2b6cb0;
+      padding: 1rem;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .intro h2 {
+      color: #2b6cb0;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .intro p {
+      color: #000000;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .game-section {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      background: #2b6cb0;
+      color: white;
+      margin-top: 3rem;
+    }
+
+    #cursor {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 9999;
+      display: none; 
+    }
+
+    @media (hover: hover) {
+      #cursor {
+        display: block;
+      }
+    }
+
+    #gameContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    @media (min-width: 768px) {
+      #gameContainer {
+        flex-direction: row;
+      }
+    }
+
+    #gameBoard {
+      border: 2px solid #4a90e2;
+      background: transparent;
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+    }
+
+    #infoPanel {
+      width: 100%;
+      padding: 15px;
+      background: rgba(74, 144, 226, 0.1);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    @media (min-width: 768px) {
+      #infoPanel {
+        width: 300px;
+      }
+    }
+
+    .word-info {
+      margin-bottom: 15px;
+    }
+
+    .word {
+      font-weight: bold;
+      color: #2c5282;
+      font-size: 1.2em;
+    }
+
+    .meaning {
+      color: #3182ce;
+      font-style: italic;
+    }
+
+    .example {
+      color: #4299e1;
+      font-size: 0.9em;
+      border-left: 3px solid #2c5282;
+      padding-left: 10px;
+      margin-top: 5px;
+    }
+
+    #score, #level, #speed {
+      font-size: 1.4em;
+      color: #2b6cb0;
+      margin-bottom: 10px;
+    }
+
+    #controls {
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #mobileControls {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      #mobileControls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        max-width: 300px;
+        margin: 20px auto;
+      }
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.1em;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      background: #4299e1;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+    }
+
+    h1 {
+      color: #2b6cb0;
+      text-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
+      text-align: center;
+      font-size: 1.8em;
+    }
+
+    .etymology {
+      color: #63b3ed;
+      margin-top: 5px;
+      font-size: 0.9em;
+      font-family: "Georgia", serif;
+      border-top: 1px dashed #90cdf4;
+      padding-top: 5px;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .game-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .game-card h3 {
+      color: #2b6cb0;
+      margin-bottom: 1rem;
+    }
+
+    .game-card p {
+      color: #000000;
+      margin-bottom: 1rem;
+    }
+
+    .game-card a {
+      color: #2b6cb0;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+
+    .game-card a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes feedbackPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+      80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <h1>Aprendizado sem fronteiras</h1>
+  </nav>
+
+  <div class="container">
+    <section class="intro">
+      <h2>Aprenda Brincando</h2>
+      <p>Bem-vindo ao nosso espa&#xe7;o interativo de aprendizagem! Explore conceitos cient&#xed;ficos de forma divertida atrav&#xe9;s do nosso jogo Word Snake 3D. Capture palavras, descubra seus significados e aprenda sobre suas origens etimol&#xf3;gicas.</p>
+    </section>
+
+    <section class="game-section">
+      <div id="cursor"></div>
+      <h1>Word Snake 3D - Aprendizado Cient&#xed;fico</h1>
+      <div id="gameContainer">
+        <canvas id="gameBoard"></canvas>
+        <div id="infoPanel">
+          <div id="score">Pontua&#xe7;&#xe3;o: 0</div>
+          <div id="level">N&#xed;vel: 1</div>
+          <div id="speed">Velocidade: Normal</div>
+          <div id="wordInfo" class="word-info">
+            Capture palavras para ver seus significados!
+          </div>
+        </div>
+      </div>
+      <div id="controls">
+        <button onclick="startGame()">Novo Jogo</button>
+        <button onclick="decreaseSpeed()">Diminuir Velocidade</button>
+        <button onclick="increaseSpeed()">Aumentar Velocidade</button>
+      </div>
+      <div id="mobileControls">
+        <button ontouchstart="handleMobileControl(&apos;ArrowLeft&apos;)" ontouchend="stopMobileControl()">&#x2190;</button>
+        <button ontouchstart="handleMobileControl(&apos;ArrowUp&apos;)" ontouchend="stopMobileControl()">&#x2191;</button>
+        <button ontouchstart="handleMobileControl(&apos;ArrowDown&apos;)" ontouchend="stopMobileControl()">&#x2193;</button>
+        <button ontouchstart="handleMobileControl(&apos;ArrowRight&apos;)" ontouchend="stopMobileControl()">&#x2192;</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="container">
+    <h2 style="color: #2b6cb0; text-align: center; margin-bottom: 2rem;">Outros Jogos Educativos</h2>
+    <div class="games-grid">
+      <div class="game-card">
+        <h3>PhET Simula&#xe7;&#xf5;es Interativas</h3>
+        <p>Explore conceitos de f&#xed;sica, qu&#xed;mica, biologia e matem&#xe1;tica atrav&#xe9;s de simula&#xe7;&#xf5;es interativas desenvolvidas pela Universidade do Colorado.</p>
+        <a href="https://phet.colorado.edu/pt_BR/" target="_blank">Jogar Agora</a>
+      </div>
+
+      <div class="game-card">
+        <h3>Khan Academy</h3>
+        <p>Pratique matem&#xe1;tica, ci&#xea;ncias e outras disciplinas com exerc&#xed;cios interativos e videaulas gratuitas.</p>
+        <a href="https://pt.khanacademy.org/math/math-games" target="_blank">Explorar Atividades</a>
+      </div>
+
+      <div class="game-card">
+        <h3>Duolingo</h3>
+        <p>Aprenda novos idiomas de forma divertida e interativa com exerc&#xed;cios gamificados.</p>
+        <a href="https://www.duolingo.com/" target="_blank">Come&#xe7;ar a Aprender</a>
+      </div>
+
+      <div class="game-card">
+        <h3>Purpose Games</h3>
+        <p>Crie e jogue quizzes educativos sobre geografia, hist&#xf3;ria, ci&#xea;ncias e muito mais.</p>
+        <a href="https://www.purposegames.com/" target="_blank">Jogar Quiz</a>
+      </div>
+
+      <div class="game-card">
+        <h3>Scratch</h3>
+        <p>Aprenda programa&#xe7;&#xe3;o de forma criativa e divertida com a plataforma do MIT.</p>
+        <a href="https://scratch.mit.edu/" target="_blank">Criar Projetos</a>
+      </div>
+
+      <div class="game-card">
+        <h3>Matem&#xe1;tica.com.br</h3>
+        <p>Jogos e atividades interativas focadas em conceitos matem&#xe1;ticos para todas as idades.</p>
+        <a href="https://matematica.com.br/jogos.html" target="_blank">Praticar Matem&#xe1;tica</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p> 2024 Aprendizado sem fronteiras - Desenvolvido para promover o aprendizado interativo</p>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Aprendizado sem fronteiras",
+    "description": "Plataforma educacional interativa com jogos e atividades para aprendizado científico",
+    "url": "https://word-snake.vercel.app",
+    "sameAs": [
+      "https://phet.colorado.edu/pt_BR/",
+      "https://pt.khanacademy.org",
+      "https://www.duolingo.com",
+      "https://www.purposegames.com",
+      "https://scratch.mit.edu",
+      "https://matematica.com.br"
+    ]
+  }
+  </script>
+  <script>const cursorContainer = document.getElementById('cursor');
+const cursorScene = new THREE.Scene();
+const cursorCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+const cursorRenderer = new THREE.WebGLRenderer({
+  alpha: true
+});
+cursorRenderer.setSize(32, 32);
+cursorContainer.appendChild(cursorRenderer.domElement);
+const cursorGeometry = new THREE.ConeGeometry(0.5, 1, 8);
+const cursorMaterial = new THREE.MeshPhongMaterial({
+  color: 0x2b6cb0
+});
+const cursorSnake = new THREE.Mesh(cursorGeometry, cursorMaterial);
+cursorScene.add(cursorSnake);
+cursorScene.add(new THREE.AmbientLight(0xffffff));
+cursorCamera.position.z = 2;
+cursorSnake.rotation.x = Math.PI / 4;
+document.addEventListener('mousemove', e => {
+  cursorContainer.style.left = e.clientX + 'px';
+  cursorContainer.style.top = e.clientY + 'px';
+  cursorSnake.rotation.z = Math.atan2(e.movementY, e.movementX);
+});
+function animateCursor() {
+  requestAnimationFrame(animateCursor);
+  cursorSnake.rotation.y += 0.05;
+  cursorRenderer.render(cursorScene, cursorCamera);
+}
+animateCursor();
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, 400 / 400, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('gameBoard')
+});
+renderer.setSize(400, 400);
+renderer.setClearColor(0xffffff);
+const gridHelper = new THREE.GridHelper(20, 20, 0x4a90e2, 0x4a90e2);
+scene.add(gridHelper);
+camera.position.set(0, 15, 15);
+camera.lookAt(0, 0, 0);
+const scientificWords = [{
+  word: "Hipótese",
+  meaning: "Uma explicação proposta para um fenômeno que pode ser testada experimentalmente",
+  example: "A hipótese de que o aquecimento global está relacionado às emissões de gases de efeito estufa.",
+  etymology: "Do grego 'hypóthesis': 'hypo' (sob) + 'thesis' (proposição), significando literalmente 'colocar embaixo' ou 'suposição fundamental'"
+}, {
+  word: "Método",
+  meaning: "Procedimento sistemático para realizar uma tarefa ou investigação científica",
+  example: "O método científico inclui observação, hipótese, experimentação e conclusão.",
+  etymology: "Do grego 'methodos': 'meta' (após) + 'hodos' (caminho), significando 'seguir um caminho' ou 'busca sistemática'"
+}, {
+  word: "Análise",
+  meaning: "Exame detalhado de algo para compreender sua natureza ou determinar suas características",
+  example: "A análise dos dados revelou padrões significativos no comportamento celular.",
+  etymology: "Do grego 'analysis': 'ana' (para cima) + 'lysis' (soltar), significando 'decomposição de um todo em suas partes'"
+}, {
+  word: "Teoria",
+  meaning: "Explicação bem fundamentada de algum aspecto do mundo natural",
+  example: "A teoria da evolução explica a diversidade das espécies através da seleção natural.",
+  etymology: "Do grego 'theōria': 'thea' (vista) + 'horan' (ver), significando 'contemplação' ou 'especulação'"
+}, {
+  word: "Síntese",
+  meaning: "Combinação de elementos para formar um todo coerente",
+  example: "A síntese proteica é um processo fundamental para a vida celular.",
+  etymology: "Do grego 'synthesis': 'syn' (junto) + 'thesis' (colocar), significando 'colocar junto' ou 'composição'"
+}];
+const feedbackMessages = [{
+  threshold: 10,
+  message: "Excelente! Você já dominou 10 conceitos científicos!",
+  color: "#2b6cb0"
+}, {
+  threshold: 20,
+  message: "Impressionante! 20 palavras dominadas. Você está se tornando um especialista!",
+  color: "#2c5282"
+}, {
+  threshold: 30,
+  message: "Extraordinário! 30 palavras! Seu vocabulário científico está excepcional!",
+  color: "#3182ce"
+}, {
+  threshold: 40,
+  message: "Fenomenal! 40 palavras! Você é um verdadeiro cientista!",
+  color: "#4299e1"
+}];
+function showFeedbackMessage(score) {
+  if (score % 10 === 0) {
+    const feedback = feedbackMessages.find(f => f.threshold === score) || {
+      message: `Incrível! Você capturou ${score} palavras científicas!`,
+      color: "#2b6cb0"
+    };
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 0 20px rgba(0,0,0,0.2);
+          z-index: 1000;
+          animation: feedbackPop 2s ease-in-out forwards;
+          text-align: center;
+          color: ${feedback.color};
+          font-size: 1.2em;
+          font-weight: bold;
+        `;
+    feedbackDiv.textContent = feedback.message;
+    document.body.appendChild(feedbackDiv);
+    setTimeout(() => {
+      feedbackDiv.remove();
+    }, 2000);
+  }
+}
+let gameSpeed = 150;
+let currentLevel = 1;
+let lastMoveTime = 0;
+class Snake3D {
+  constructor() {
+    this.segments = [];
+    this.direction = new THREE.Vector3(1, 0, 0);
+    this.createSegment(0, 0, 0);
+  }
+  createSegment(x, y, z) {
+    const geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x2b6cb0
+    });
+    const segment = new THREE.Mesh(geometry, material);
+    segment.position.set(x, y, z);
+    scene.add(segment);
+    this.segments.push(segment);
+  }
+  move(currentTime) {
+    if (currentTime - lastMoveTime < gameSpeed) return;
+    lastMoveTime = currentTime;
+    for (let i = this.segments.length - 1; i > 0; i--) {
+      this.segments[i].position.copy(this.segments[i - 1].position);
+    }
+    this.segments[0].position.add(this.direction);
+    if (this.segments[0].position.x > 10) this.segments[0].position.x = -10;
+    if (this.segments[0].position.x < -10) this.segments[0].position.x = 10;
+    if (this.segments[0].position.z > 10) this.segments[0].position.z = -10;
+    if (this.segments[0].position.z < -10) this.segments[0].position.z = 10;
+  }
+}
+class Fruit3D {
+  constructor() {
+    const geometry = new THREE.SphereGeometry(0.5);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x4299e1
+    });
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.word = scientificWords[0];
+    scene.add(this.mesh);
+    this.pickLocation();
+  }
+  pickLocation() {
+    this.mesh.position.x = Math.floor(Math.random() * 20 - 10);
+    this.mesh.position.z = Math.floor(Math.random() * 20 - 10);
+    this.word = scientificWords[Math.floor(Math.random() * scientificWords.length)];
+  }
+}
+let snake,
+  fruit,
+  score = 0;
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 5, 5);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0x404040));
+function increaseSpeed() {
+  if (gameSpeed > 50) {
+    gameSpeed -= 25;
+    currentLevel++;
+    updateSpeedDisplay();
+  }
+}
+function decreaseSpeed() {
+  if (gameSpeed < 300) {
+    gameSpeed += 25;
+    currentLevel = Math.max(1, currentLevel - 1);
+    updateSpeedDisplay();
+  }
+}
+function updateSpeedDisplay() {
+  document.getElementById('level').textContent = `Nível: ${currentLevel}`;
+  let speedText = "Normal";
+  if (gameSpeed <= 75) speedText = "Muito Rápido";else if (gameSpeed <= 100) speedText = "Rápido";else if (gameSpeed >= 200) speedText = "Lento";
+  document.getElementById('speed').textContent = `Velocidade: ${speedText}`;
+}
+function checkCollision() {
+  const headPos = snake.segments[0].position;
+  const fruitPos = fruit.mesh.position;
+  const distance = headPos.distanceTo(fruitPos);
+  if (distance < 1) {
+    score++;
+    document.getElementById('score').textContent = `Pontuação: ${score}`;
+    updateWordInfo(fruit.word);
+    snake.createSegment(snake.segments[snake.segments.length - 1].position.x, 0, snake.segments[snake.segments.length - 1].position.z);
+    fruit.pickLocation();
+    showFeedbackMessage(score);
+  }
+}
+function updateWordInfo(word) {
+  const wordInfo = document.getElementById('wordInfo');
+  wordInfo.innerHTML = `
+        <div class="word">${word.word}</div>
+        <div class="meaning">${word.meaning}</div>
+        <div class="example">${word.example}</div>
+        <div class="etymology">${word.etymology}</div>
+      `;
+}
+function animate(currentTime) {
+  requestAnimationFrame(animate);
+  snake.move(currentTime);
+  checkCollision();
+  renderer.render(scene, camera);
+}
+function startGame() {
+  scene.children = [];
+  scene.add(gridHelper);
+  scene.add(light);
+  scene.add(new THREE.AmbientLight(0x404040));
+  snake = new Snake3D();
+  fruit = new Fruit3D();
+  score = 0;
+  gameSpeed = 150;
+  currentLevel = 1;
+  updateSpeedDisplay();
+  document.getElementById('score').textContent = `Pontuação: ${score}`;
+  animate();
+}
+function handleMobileControl(direction) {
+  const event = new KeyboardEvent('keydown', {
+    key: direction
+  });
+  window.dispatchEvent(event);
+}
+function stopMobileControl() {}
+function resizeGame() {
+  const gameBoard = document.getElementById('gameBoard');
+  const container = document.getElementById('gameContainer');
+  let width = Math.min(container.clientWidth, 400);
+  let height = width;
+  gameBoard.style.width = `${width}px`;
+  gameBoard.style.height = `${height}px`;
+  renderer.setSize(width, height);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resizeGame);
+resizeGame();
+window.addEventListener('keydown', e => {
+  switch (e.key) {
+    case 'ArrowUp':
+      snake.direction.set(0, 0, -1);
+      break;
+    case 'ArrowDown':
+      snake.direction.set(0, 0, 1);
+      break;
+    case 'ArrowLeft':
+      snake.direction.set(-1, 0, 0);
+      break;
+    case 'ArrowRight':
+      snake.direction.set(1, 0, 0);
+      break;
+  }
+});
+startGame();</script>
+</body>
+</html>
